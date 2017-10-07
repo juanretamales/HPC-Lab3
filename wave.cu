@@ -38,8 +38,71 @@ para probar: time ./wave.o -N 256 -X 128 -Y 128 -T 100 -f salidaGrilla.raw -t 26
 
 para enviar al servidor: scp code.cu jretamales@bioserver.diinf.usach.cl:/alumnos/jretamales/lab2
 */
-
 __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
+	int blockD = blockDim.x;
+	int blockX = blockIdx.x;
+	int threadX = threadIdx.x;
+
+	//int ix = blockX * blockD + threadX;
+	//if(i < values)
+	//	c[i] = a[i] + b[i];
+	int position = threadIdx.x + blockDim.x * threadIdx.y;
+	printf("Hello Im thread %d in block %d of %d threads and position global[%d] \n", threadX, blockX, blockD);
+
+	    float dt=0.1;
+    	float dd=2.0;
+    	float c=1.0;
+
+	for(int i = 0; i<size; i++)
+	{
+		for(int j = 0; j<size; j++)
+		{
+			//para tiempo t==0
+			if(t==0)
+			{
+				//verificacion para condicion inicial
+				if((0.4*size)<i && (0.4*size)<j && i<(0.6*size) && j<(0.6*size))
+				{
+					c_gt[size*i+j]=20;
+				}
+				else
+				{
+					c_gt[size*i+j]=0;
+				}
+			}//fin if  t==0
+			else
+			{
+				if(t==1)
+				{
+					if(i!=0 && j!=0 && i!=(size-1) && j!=(size-1))//verificando condion de borde
+					{
+						//ecuacion de Schroedinger para t=1
+						c_gt[size*i+j] = c_gt1[size*i+j]+(pow(c,2)/2)*(pow((dt/dd),2))*(c_gt1[size*(i+1)+j]+c_gt1[size*(i-1)+j]+c_gt1[size*(i)+(j-1)]+c_gt1[size*(i)+(j+1)]-4*c_gt1[size*i+j]);
+					}
+					else
+					{
+						c_gt[size*i+j] = 0;
+					}
+				}//fin if  t==1
+				else
+				{// si t es mayor a 1
+					if(i!=0 && j!=0 && i!=(size-1) && j!=(size-1))//verificando condion de borde
+					{
+						//ecuacion de Schroedinger para t>1
+						c_gt[size*i+j] = 2*c_gt1[size*i+j]-c_gt2[size*i+j]+(pow(c,2))*(pow((dt/dd),2))*(c_gt1[size*(i+1)+j]+c_gt1[size*(i-1)+j]+c_gt1[size*(i)+(j-1)]+c_gt1[size*(i)+(j+1)]-4*c_gt1[size*i+j]);
+
+					}
+					else
+					{
+						c_gt[size*i+j] = 0;
+					}
+				}//fin if  t==1 else
+			}//fin if  t==0 else
+		}//fin for j
+	}//fin for i
+}
+
+__global__ void next2(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 	int blockD = blockDim.x;
 	int blockX = blockIdx.x;
 	int threadX = threadIdx.x;
@@ -270,7 +333,13 @@ int tamanoBlockY = 0;
 				cudaDeviceSynchronize();//sincronizo los datos
 				//copiando arreglos desde el device al host
 				cudaMemcpy(c_gt, grilla, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
+
+
       }//fin for t
+
+			cudaFree(c_gt2);
+			cudaFree(c_gt1);
+			cudaFree(c_gt);
 
       close (outputF);
 
