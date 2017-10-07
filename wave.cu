@@ -31,7 +31,7 @@ Integrantes: Juan Retamales
 /* NOTAS
 Para compilar: nvcc wave.cu -o wave.o
 Para compilar2: nvcc wave.cu -o wave -lm -arch=sm_52
-Para ejecutar: ./wave.o -N 256 -X 16 -Y 16 -T 300 -f salidaGrilla.raw -t 300
+Para ejecutar: ./wave.o -N 256 -X 256 -Y 256 -T 100 -f salidaGrilla.raw -t 100
 
 para probar: time ./wave.o -N 256 -X 128 -Y 128 -T 100 -f salidaGrilla.raw -t 26 > test.log
 
@@ -90,6 +90,7 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 					{
 						//ecuacion de Schroedinger para t>1
 						c_gt[size*i+j] = 2*c_gt1[size*i+j]-c_gt2[size*i+j]+(pow(c,2))*(pow((dt/dd),2))*(c_gt1[size*(i+1)+j]+c_gt1[size*(i-1)+j]+c_gt1[size*(i)+(j-1)]+c_gt1[size*(i)+(j+1)]-4*c_gt1[size*i+j]);
+
 					}
 					else
 					{
@@ -102,6 +103,7 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 }
 
 __global__ void copyT1T(float *c_gt, float *c_gt1, int size){
+	printf("\nCopianto T a T1");
 	for(int i=0;i<size;i++)
 	{
 		for(int j=0;j<size;j++)
@@ -112,6 +114,7 @@ __global__ void copyT1T(float *c_gt, float *c_gt1, int size){
 }
 
 __global__ void copyT2T1(float *c_gt1, float *c_gt2, int size){
+	printf("\nCopianto T1 a T2");
 	for(int i=0;i<size;i++)
 	{
 		for(int j=0;j<size;j++)
@@ -186,7 +189,7 @@ int tamanoBlockY = 0;
         if(outputF == -1)
         {
           perror("\nFailed to create an open the file.");
-          EXIT_FAILURE;
+          //EXIT_FAILURE;
           exit(1);
         }
       }
