@@ -3,7 +3,7 @@ Integrantes: Juan Retamales
 */
 
 
-#include <pmmintrin.h>
+//#include <pmmintrin.h>
 
 /*C library to perform Input/Output operations*/
 #include <stdio.h>
