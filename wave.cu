@@ -204,8 +204,8 @@ int tamanoBlockY = 0;
     {
 
 			dim3 numBlocks (tamanoBlockX, tamanoBlockY);//asigno el blocksize
-			
-			
+
+
 			dim3 blocksize (tamanoGrilla / tamanoBlockX, tamanoGrilla / tamanoBlockY);
 
 
@@ -231,7 +231,7 @@ int tamanoBlockY = 0;
 
 			for( t=0;t<num_pasos;t++)
 			{
-				printf("\n   usando t=%d", t);
+				printf("\n   usando t=%d \n", t);
 				//al final de la iteracion la grillaT1 de tiempo (t-1) pasa a ser grillaT2 que corresponde a grilla en tiempo (t-2)
 				//asigno num_hebras como numero de hebras para el siguiente bloque, y asigno cuales variables son compartidas y privadas.
 				next<<<numBlocks,blocksize>>>(c_gt, c_gt1, c_gt2, tamanoGrilla, t);
