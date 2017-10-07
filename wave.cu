@@ -46,8 +46,8 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 	//int ix = blockX * blockD + threadX;
 	//if(i < values)
 	//	c[i] = a[i] + b[i];
-	int position = threadIdx.x + blockDim.x * threadIdx.y;
-	printf("Hello Im thread %d in block %d of %d threads and position global[%d] \n", threadX, blockX, blockD);
+	int position = (blockIdx.x  + gridDim.x  * blockIdx.y) *  blockDim.x + threadIdx.x;//globalThreadNum = blockNumInGrid * threadsPerBlock + threadNumInBlock
+	printf("Hello Im thread %d in block %d of %d threads and position global[%d] \n", threadX, blockX, blockD, position);
 
 	    float dt=0.1;
     	float dd=2.0;
