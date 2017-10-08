@@ -39,17 +39,22 @@ para probar: time ./wave.o -N 256 -X 128 -Y 128 -T 100 -f salidaGrilla.raw -t 26
 para enviar al servidor: scp code.cu jretamales@bioserver.diinf.usach.cl:/alumnos/jretamales/lab2
 */
 __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
-	int blockD = blockDim.x;
-	int blockX = blockIdx.x;
-	int threadX = threadIdx.x;
+	//int blockD = blockDim.x;
+	//int blockX = blockIdx.x;
+	//int threadX = threadIdx.x;
 
 	//int ix = blockX * blockD + threadX;
 	//if(i < values)
 	//	c[i] = a[i] + b[i];
 	int j = threadIdx.x + blockDim.x * blockIdx.x;
 	int i = threadIdx.y + blockDim.y * blockIdx.y;
-	printf("Hello Im thread %d in block %d of %d threads and position global [i,j]=[%d,%d] \n", threadX, blockX, blockD, i, j);
 
+//get thread global id of 2dGrid and 2D block
+	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
+	int threadId = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
+	//printf("\nHello Im thread %d in block %d of %d threads and position global [i,j]=[%d,%d] ", threadX, blockX, blockD, i, j);
+	printf("\nHello Im thread %d in block %d", blockId, threadId);
+/*
 	    float dt=0.1;
     	float dd=2.0;
     	float c=1.0;
@@ -95,6 +100,7 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 					}
 				}//fin if  t==1 else
 			}//fin if  t==0 else
+			printf(" Value=[%d] \n", c_gt[size*i+j]);*/
 }
 
 __global__ void next2(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
@@ -219,6 +225,8 @@ int tamanoBlockY = 0;
 
 
 
+
+
     /*De tener menos de 5 elementos por parametros se cancela ya que es insuficiente para iniciar*/
     if (argc<4)
     {
@@ -276,6 +284,15 @@ int tamanoBlockY = 0;
     if(outputF != -1 && tamanoGrilla>0  && iteracionSalida>0)
     {
 
+			// declaracion de eventos
+			cudaEvent_t start;
+			cudaEvent_t stop;
+			// creacion de eventos
+      cudaEventCreate(&start);
+      cudaEventCreate(&stop);
+			// marca de inicio
+      cudaEventRecord(start,0);
+
 			dim3 numBlocks (tamanoBlockX, tamanoBlockY);//asigno el blocksize
 
 
@@ -321,7 +338,7 @@ int tamanoBlockY = 0;
 						for( j=0;j<tamanoGrilla;j++)
 						{
 
-							printf("\n   intentando guardar %f", grilla[tamanoGrilla*i+j]);
+							printf("\n   intentando guardar %f", &grilla[tamanoGrilla*i+j]);
 							write(outputF, &grilla[tamanoGrilla*i+j] , sizeof(float));
 						}
 					}
@@ -347,6 +364,19 @@ int tamanoBlockY = 0;
 			cudaFree(c_gt2);
 			cudaFree(c_gt1);
 			cudaFree(c_gt);
+
+			// marca de final
+      cudaEventRecord(stop,0);
+		// sincronizacion GPU-CPU
+		 cudaEventSynchronize(stop);
+		// calculo del tiempo en milisegundos
+		float  elapsedTime;
+		cudaEventElapsedTime(&elapsedTime,start,stop);
+		// impresion de resultados
+		printf("> Tiempo de ejecucion: %f ms\n",elapsedTime);
+		// liberacion de recursos
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 
       close (outputF);
 
