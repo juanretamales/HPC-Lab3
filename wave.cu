@@ -46,15 +46,15 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 	//int ix = blockX * blockD + threadX;
 	//if(i < values)
 	//	c[i] = a[i] + b[i];
-	int j = threadIdx.x + blockDim.x * blockIdx.x;// posicion de la hebra + (dimencion bloque * posicion del bloque en la grilla)
-	int i = threadIdx.y + blockDim.y * blockIdx.y;
+	int i = threadIdx.x + blockDim.x * blockIdx.x;// posicion de la hebra + (dimencion bloque * posicion del bloque en la grilla)
+	int j = threadIdx.y + blockDim.y * blockIdx.y;
 
 //get thread global id of 2dGrid and 2D block
 	//int blockId = blockIdx.x + blockIdx.y * gridDim.x;
 	//int threadId = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
 	printf("\nHello Im thread, in X is %d in block %d of %d threads, in Y  is %d in block %d of %d threads, and position global [i,j]=[%d,%d] ", blockDim.x, blockIdx.x, threadIdx.x, blockDim.y, blockIdx.y, threadIdx.y, i, j);
 	//printf("\nHello Im thread %d in block %d", blockId, threadId);
-/*
+
 	    float dt=0.1;
     	float dd=2.0;
     	float c=1.0;
@@ -100,7 +100,7 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 					}
 				}//fin if  t==1 else
 			}//fin if  t==0 else
-			printf(" Value=[%d] \n", c_gt[size*i+j]);*/
+			printf(" Value=[%d] \n", c_gt[size*i+j]);
 }
 
 __global__ void next2(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
