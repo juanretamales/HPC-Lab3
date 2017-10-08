@@ -161,6 +161,18 @@ __global__ void next2(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 }
 
 __global__ void copyT1T(float *c_gt, float *c_gt1, int size){
+	int j = threadIdx.x + blockDim.x * blockIdx.x;
+	int i = threadIdx.y + blockDim.y * blockIdx.y;
+	c_gt1[size*i+j]=c_gt[size*i+j];
+}
+
+__global__ void copyT2T1(float *c_gt1, float *c_gt2, int size){
+	int j = threadIdx.x + blockDim.x * blockIdx.x;
+	int i = threadIdx.y + blockDim.y * blockIdx.y;
+	c_gt2[size*i+j]=c_gt1[size*i+j];
+}
+
+__global__ void copyT1Tx(float *c_gt, float *c_gt1, int size){
 	printf("\nCopianto T a T1");
 	for(int i=0;i<size;i++)
 	{
@@ -171,7 +183,7 @@ __global__ void copyT1T(float *c_gt, float *c_gt1, int size){
 	}
 }
 
-__global__ void copyT2T1(float *c_gt1, float *c_gt2, int size){
+__global__ void copyT2T1x(float *c_gt1, float *c_gt2, int size){
 	printf("\nCopianto T1 a T2");
 	for(int i=0;i<size;i++)
 	{
