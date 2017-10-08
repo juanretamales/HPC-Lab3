@@ -52,7 +52,7 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 //get thread global id of 2dGrid and 2D block
 	//int blockId = blockIdx.x + blockIdx.y * gridDim.x;
 	//int threadId = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
-	printf("\nHello Im thread %d in block %d of %d threads and position global [i,j]=[%d,%d] ", threadX, blockX, blockD, i, j);
+	printf("\nHello Im thread, in X is %d in block %d of %d threads, in Y  is %d in block %d of %d threads, and position global [i,j]=[%d,%d] ", blockDim.x, blockIdx.x, threadIdx.x, blockDim.y, blockIdx.y, threadIdx.y, i, j);
 	//printf("\nHello Im thread %d in block %d", blockId, threadId);
 /*
 	    float dt=0.1;
