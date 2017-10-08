@@ -46,14 +46,14 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 	//int ix = blockX * blockD + threadX;
 	//if(i < values)
 	//	c[i] = a[i] + b[i];
-	int j = threadIdx.x + blockDim.x * blockIdx.x;
+	int j = threadIdx.x + blockDim.x * blockIdx.x;// posicion de la hebra + (dimencion bloque * posicion del bloque en la grilla)
 	int i = threadIdx.y + blockDim.y * blockIdx.y;
 
 //get thread global id of 2dGrid and 2D block
-	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
-	int threadId = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
-	//printf("\nHello Im thread %d in block %d of %d threads and position global [i,j]=[%d,%d] ", threadX, blockX, blockD, i, j);
-	printf("\nHello Im thread %d in block %d", blockId, threadId);
+	//int blockId = blockIdx.x + blockIdx.y * gridDim.x;
+	//int threadId = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
+	printf("\nHello Im thread %d in block %d of %d threads and position global [i,j]=[%d,%d] ", threadX, blockX, blockD, i, j);
+	//printf("\nHello Im thread %d in block %d", blockId, threadId);
 /*
 	    float dt=0.1;
     	float dd=2.0;
@@ -298,6 +298,7 @@ int tamanoBlockY = 0;
 
 			dim3 blocksize (tamanoGrilla / tamanoBlockX, tamanoGrilla / tamanoBlockY);
 
+			printf("\n numblocks [%d, %d] and blocksize [%d, %d]", tamanoBlockX, tamanoBlockY, tamanoGrilla / tamanoBlockX, tamanoGrilla / tamanoBlockY );
 
 			//float grillaT2[tamanoGrilla][tamanoGrilla];//grilla en tiempo (t-2)
 
