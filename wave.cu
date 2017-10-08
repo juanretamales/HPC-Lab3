@@ -46,22 +46,14 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 	//int ix = blockX * blockD + threadX;
 	//if(i < values)
 	//	c[i] = a[i] + b[i];
-	int position = threadIdx.x + blockDim.x * blockIdx.x;
-	printf("Hello Im X thread %d in block %d of %d threads and position global[%d] \n", threadX, blockX, blockD, position);
-	 blockD = blockDim.y;
-	 blockX = blockIdx.y;
-	 threadX = threadIdx.y;
-	 position = threadIdx.y + blockDim.y * blockIdx.y;
-	printf("Hello Im Y thread %d in block %d of %d threads and position global[%d] \n", threadX, blockX, blockD, position);
+	int j = threadIdx.x + blockDim.x * blockIdx.x;
+	int i = threadIdx.y + blockDim.y * blockIdx.y;
+	printf("Hello Im thread %d in block %d of %d threads and position global [i,j]=[%d,%d] \n", threadX, blockX, blockD, i, j);
 
 	    float dt=0.1;
     	float dd=2.0;
     	float c=1.0;
 
-	for(int i = 0; i<size; i++)
-	{
-		for(int j = 0; j<size; j++)
-		{
 			//para tiempo t==0
 			if(t==0)
 			{
@@ -103,8 +95,6 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 					}
 				}//fin if  t==1 else
 			}//fin if  t==0 else
-		}//fin for j
-	}//fin for i
 }
 
 __global__ void next2(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
