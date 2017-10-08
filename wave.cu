@@ -293,10 +293,16 @@ int tamanoBlockY = 0;
 			// marca de inicio
       cudaEventRecord(start,0);
 
-			dim3 numBlocks (tamanoBlockX, tamanoBlockY);//asigno el blocksize
+			//dim3 numBlocks (tamanoBlockX, tamanoBlockY);//asigno el blocksize
+			dim3 numBlocks;
+			numBlocks.x = tamanoBlockX;
+			numBlocks.y = tamanoBlockY;
 
 
-			dim3 blocksize (tamanoGrilla / tamanoBlockX, tamanoGrilla / tamanoBlockY);
+			//dim3 blocksize (tamanoGrilla / tamanoBlockX, tamanoGrilla / tamanoBlockY);
+			dim3 blocksize;
+			blocksize.x = tamanoGrilla / tamanoBlockX;
+			blocksize.y = tamanoGrilla / tamanoBlockY;
 
 			printf("\n numblocks [%d, %d] and blocksize [%d, %d]", tamanoBlockX, tamanoBlockY, tamanoGrilla / tamanoBlockX, tamanoGrilla / tamanoBlockY );
 
