@@ -39,23 +39,25 @@ para probar: time ./wave.o -N 256 -X 128 -Y 128 -T 100 -f salidaGrilla.raw -t 26
 para enviar al servidor: scp code.cu jretamales@bioserver.diinf.usach.cl:/alumnos/jretamales/lab2
 */
 __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t, int gridDimX){
-	int blockdX = blockDim.x;
+	/*int blockdX = blockDim.x;
 	int blockX = blockIdx.x;
 	int threadX = threadIdx.x;
 	int threadY = threadIdx.y;
 	int blockdY = blockDim.y;
-	int blockY = blockIdx.y;
+	int blockY = blockIdx.y;*/
 	//int ix = blockX * blockD + threadX;
 	//if(i < values)
 	//	c[i] = a[i] + b[i];
-	int m = threadX + blockdX * blockX;// posicion de la hebra + (dimencion bloque * posicion del bloque en la grilla)
-	int n = threadY + blockdY * blockY;
+	//int m = threadX + blockdX * blockX;// posicion de la hebra + (dimencion bloque * posicion del bloque en la grilla)
+	//int n = threadY + blockdY * blockY;
+	int blockId = blockIdx.x + blockIdx.y * gridDim.x;
+		int threadId = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
 
-	int k = (threadX + blockdX * threadX) +  (gridDimX * blockdX * (threadY + blockdY * threadY));//obtengo id X*Y del hilo
-	int j = k % size;
-	int i = k / size;
+	//int k = (threadX + blockdX * threadX) +  (gridDimX * blockdX * (threadY + blockdY * threadY));//obtengo id X*Y del hilo
+	int j = threadId % size;
+	int i = threadId / size;
 
-	printf("\nHello Im thread, in X is %d and Y  is %d, then [i,j]=[%d,%d] ", m, n, i, j);
+	printf("\nHello Im thread, in threadId is %d , then [i,j]=[%d,%d] ",  threadId, i, j);
 
 
 //get thread global id of 2dGrid and 2D block
