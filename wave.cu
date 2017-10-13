@@ -39,10 +39,6 @@ para probar: time ./wave.o -N 256 -X 128 -Y 128 -T 100 -f salidaGrilla.raw -t 26
 para enviar al servidor: scp code.cu jretamales@bioserver.diinf.usach.cl:/alumnos/jretamales/lab2
 */
 __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
-	int blockD = blockDim.x;
-	int blockX = blockIdx.x;
-	int threadX = threadIdx.x;
-
 	//int ix = blockX * blockD + threadX;
 	//if(i < values)
 	//	c[i] = a[i] + b[i];
