@@ -38,14 +38,14 @@ para probar: time ./wave.o -N 256 -X 128 -Y 128 -T 100 -f salidaGrilla.raw -t 26
 
 para enviar al servidor: scp code.cu jretamales@bioserver.diinf.usach.cl:/alumnos/jretamales/lab2
 */
-__global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t, int numBlocks){
+__global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 	//int ix = blockX * blockD + threadX;
 	//if(i < values)
 	//	c[i] = a[i] + b[i];
 	int m = threadIdx.x + blockDim.x * blockIdx.x;// posicion de la hebra + (dimencion bloque * posicion del bloque en la grilla)
 	int n = threadIdx.y + blockDim.y * blockIdx.y;
 
-	int k = (blockDim.X * numBlocks) * threadIdx.y + ( threadIdx.x + blockDim.x * blockIdx.x);//obtengo id X*Y del hilo
+	int k = (blockDim.X * gridDim.X) * threadIdx.y + ( threadIdx.x + blockDim.x * blockIdx.x);//obtengo id X*Y del hilo
 	int j = k % size;
 	int i = k / size;
 
@@ -335,7 +335,7 @@ int tamanoBlockY = 0;
 				printf("\n   usando t=%d \n", t);
 				//al final de la iteracion la grillaT1 de tiempo (t-1) pasa a ser grillaT2 que corresponde a grilla en tiempo (t-2)
 				//asigno num_hebras como numero de hebras para el siguiente bloque, y asigno cuales variables son compartidas y privadas.
-				next<<<numBlocks,blocksize>>>(c_gt, c_gt1, c_gt2, tamanoGrilla, t, numBlocks);
+				next<<<numBlocks,blocksize>>>(c_gt, c_gt1, c_gt2, tamanoGrilla, t);
 				cudaDeviceSynchronize();
 				//copiando arreglos desde el device al host
 				cudaMemcpy(c_gt, grilla, tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
