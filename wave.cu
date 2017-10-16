@@ -351,7 +351,7 @@ int tamanoBlockY = 0;
 				//printf("\n   usando t=%d \n", t);
 				//al final de la iteracion la grillaT1 de tiempo (t-1) pasa a ser grillaT2 que corresponde a grilla en tiempo (t-2)
 				//asigno num_hebras como numero de hebras para el siguiente bloque, y asigno cuales variables son compartidas y privadas.
-				next<<<numBlocks,blocksize, tamanoGrilla*tamanoGrilla*sizeof(float)>>>(c_gt, c_gt1, c_gt2, tamanoGrilla, t, ((int) (tamanoGrilla / tamanoBlockY)));
+				next<<<numBlocks,blocksize>>>(c_gt, c_gt1, c_gt2, tamanoGrilla, t, ((int) (tamanoGrilla / tamanoBlockY)));
 				cudaDeviceSynchronize();
 				//copiando arreglos desde el device al host
 				cudaMemcpy(c_gt, grilla, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
