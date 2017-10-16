@@ -63,7 +63,7 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t, i
 
 
 
-	//printf("\nHello Im thread, in threadId is %d , then [i,j]=[%d,%d] ",  threadId, i, j);
+	printf("\nHello Im thread in global [i,j]=[%d,%d] ", i, j);
 
 
 //get thread global id of 2dGrid and 2D block
@@ -342,9 +342,14 @@ int tamanoBlockY = 0;
 			cudaMalloc((void**) &c_gt, tamanoGrilla*tamanoGrilla*sizeof(float));//grilla cuda en tiempo (t) actual
 
 			//copiando arreglos desde el host al device
-			cudaMemcpy(c_gt2, grillaT2, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyHostToDevice);
-			cudaMemcpy(c_gt1, grillaT1, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyHostToDevice);
-			cudaMemcpy(c_gt, grilla, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyHostToDevice);
+			//cudaMemcpy(c_gt2, grillaT2, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyHostToDevice);
+			//cudaMemcpy(c_gt1, grillaT1, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyHostToDevice);
+			//cudaMemcpy(c_gt, grilla, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyHostToDevice);
+
+			//test destino, origen, tamaño, type transfer
+			cudaMemcpy(grillaT2, c_gt2, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyHostToDevice);
+			cudaMemcpy(grillaT1, c_gt1, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyHostToDevice);
+			cudaMemcpy(grilla, c_gt, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyHostToDevice);
 
 			for( t=0;t<num_pasos;t++)
 			{
@@ -354,7 +359,8 @@ int tamanoBlockY = 0;
 				next<<<numBlocks,blocksize>>>(c_gt, c_gt1, c_gt2, tamanoGrilla, t, ((int) (tamanoGrilla / tamanoBlockY)));
 				cudaDeviceSynchronize();
 				//copiando arreglos desde el device al host
-				cudaMemcpy(c_gt, grilla, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
+				//cudaMemcpy(c_gt, grilla, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
+				cudaMemcpy(grilla, c_gt, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
 
 				//si iteracion de salida es igual al al tiempo (t) la recorro sin paralelismo e imprimo
 				if(t==(iteracionSalida-1))
@@ -374,18 +380,23 @@ int tamanoBlockY = 0;
 				}
 
 
-
 				//al final de la iteracion la grillaT1 de tiempo (t-1) pasa a ser grillaT2 que corresponde a grilla en tiempo (t-2)
 				//asigno num_hebras como numero de hebras para el siguiente bloque, y asigno cuales variables son compartidas y privadas.
         copyT2T1<<<numBlocks,blocksize, tamanoGrilla*tamanoGrilla*sizeof(float)>>>(c_gt1, c_gt2, tamanoGrilla);
 				cudaDeviceSynchronize();//sincronizo los datos
-				cudaMemcpy(c_gt2, c_gt1, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
+
+
+				//cudaMemcpy(c_gt2, c_gt1, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
+				cudaMemcpy(c_gt1, c_gt2, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
         //al final de la iteracion la grilla de tiempo (t) pasa a ser grillaT1 que corresponde a grilla en tiempo (t-1)
 				//asigno num_hebras como numero de hebras para el siguiente bloque, y asigno cuales variables son compartidas y privadas.
         copyT1T<<<numBlocks,blocksize>>>(c_gt, c_gt1, tamanoGrilla);
 				cudaDeviceSynchronize();//sincronizo los datos
 				//copiando arreglos desde el device al host
-				cudaMemcpy(c_gt, grilla, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
+
+
+				//cudaMemcpy(c_gt, grilla, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
+				cudaMemcpy(grilla, c_gt, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
 
 
       }//fin for t
