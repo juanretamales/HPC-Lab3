@@ -63,7 +63,7 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t, i
 
 
 
-	printf("\nHello Im thread in global [i,j]=[%d,%d] ", i, j);
+	//printf("\nHello Im thread in global [i,j]=[%d,%d] ", i, j);
 
 
 //get thread global id of 2dGrid and 2D block
@@ -424,7 +424,7 @@ int tamanoBlockY = 0;
       //printf("Tiempo usado con  Tamano[%d] num_Pasos[%d]  Salida[%d] = %f sec.\n", tamanoGrilla, num_pasos, iteracionSalida, end-start);
 	end_t = clock();
 	total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC;
-   	//printf("Total time taken by CPU: %f\n", (double)total_t  );
+   	printf("Total time taken by CPU: %f\n", (double)total_t  );
       return 0;
     }//fin if principal
   }//fin main
