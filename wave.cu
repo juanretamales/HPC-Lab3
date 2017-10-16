@@ -39,27 +39,28 @@ para probar: time ./wave.o -N 256 -X 128 -Y 128 -T 100 -f salidaGrilla.raw -t 26
 para enviar al servidor: scp code.cu jretamales@bioserver.diinf.usach.cl:/alumnos/jretamales/lab2
 */
 __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t, int gridDimX){
-	/*int blockdX = blockDim.x;
+	//extern __shared__ float c_gt[size*size];
+	//__syncthreads();
+	int blockdX = blockDim.x;
 	int blockX = blockIdx.x;
 	int threadX = threadIdx.x;
 	int threadY = threadIdx.y;
 	int blockdY = blockDim.y;
-	int blockY = blockIdx.y;*/
+	int blockY = blockIdx.y;
 	//int ix = blockX * blockD + threadX;
 	//if(i < values)
 	//	c[i] = a[i] + b[i];
-	//int m = threadX + blockdX * blockX;// posicion de la hebra + (dimencion bloque * posicion del bloque en la grilla)
-	//int n = threadY + blockdY * blockY;
+	int i = threadX + blockdX * blockX;// posicion de la hebra + (dimencion bloque * posicion del bloque en la grilla)
+	int j= threadY + blockdY * blockY;
 	/*int blockId = blockIdx.x + blockIdx.y * gridDim.x;
 		int threadId = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
 
 	//int k = (threadX + blockdX * threadX) +  (gridDimX * blockdX * (threadY + blockdY * threadY));//obtengo id X*Y del hilo
 	int j = threadId % size;
 	int i = threadId / size;*/
-	__shared__ int count;
-	__syncthreads();
-	count++
-	printf("\ncount=[%d] ",  count);
+	//extern __shared__ float c_gt;
+	//__syncthreads();
+
 
 
 	//printf("\nHello Im thread, in threadId is %d , then [i,j]=[%d,%d] ",  threadId, i, j);
@@ -70,7 +71,7 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t, i
 	//int threadId = blockId * (blockDim.x * blockDim.y) + (threadIdx.y * blockDim.x) + threadIdx.x;
 	//printf("\nHello Im thread, in X is %d in block %d of %d threads, in Y  is %d in block %d of %d threads, and position global [i,j]=[%d,%d] ", blockDim.x, blockIdx.x, threadIdx.x, blockDim.y, blockIdx.y, threadIdx.y, i, j);
 	//printf("\nHello Im thread %d in block %d", blockId, threadId);
-/*
+
 	    float dt=0.1;
     	float dd=2.0;
     	float c=1.0;
@@ -116,7 +117,7 @@ __global__ void next(float *c_gt, float *c_gt1, float *c_gt2, int size, int t, i
 					}
 				}//fin if  t==1 else
 			}//fin if  t==0 else
-			printf("\nHello Im thread, in X is %d in block %d of %d threads, in Y  is %d in block %d of %d threads, and position global [i,j]=[%d,%d]  Value=[%d] \n", blockDim.x, blockIdx.x, threadIdx.x, blockDim.y, blockIdx.y, threadIdx.y, i, j,  &c_gt[size*i+j]);
+			//printf("\nHello Im thread, in X is %d in block %d of %d threads, in Y  is %d in block %d of %d threads, and position global [i,j]=[%d,%d]  Value=[%d] \n", blockDim.x, blockIdx.x, threadIdx.x, blockDim.y, blockIdx.y, threadIdx.y, i, j,  &c_gt[size*i+j]);
 			//printf(" Value=[%d] \n", &c_gt[size*i+j]);*/
 }
 
@@ -184,12 +185,14 @@ __global__ void next2(float *c_gt, float *c_gt1, float *c_gt2, int size, int t){
 }
 
 __global__ void copyT1T(float *c_gt, float *c_gt1, int size){
+	//extern __shared__ float c_gt1;
 	int j = threadIdx.x + blockDim.x * blockIdx.x;
 	int i = threadIdx.y + blockDim.y * blockIdx.y;
 	c_gt1[size*i+j]=c_gt[size*i+j];
 }
 
 __global__ void copyT2T1(float *c_gt1, float *c_gt2, int size){
+	//extern __shared__ float c_gt2;
 	int j = threadIdx.x + blockDim.x * blockIdx.x;
 	int i = threadIdx.y + blockDim.y * blockIdx.y;
 	c_gt2[size*i+j]=c_gt1[size*i+j];
@@ -321,7 +324,7 @@ int tamanoBlockY = 0;
 			blocksize.x = tamanoGrilla / tamanoBlockX;
 			blocksize.y = tamanoGrilla / tamanoBlockY;
 
-			printf("\n numblocks [%d, %d] and blocksize [%d, %d]", tamanoBlockX, tamanoBlockY, tamanoGrilla / tamanoBlockX, tamanoGrilla / tamanoBlockY );
+			//printf("\n numblocks [%d, %d] and blocksize [%d, %d]", tamanoBlockX, tamanoBlockY, tamanoGrilla / tamanoBlockX, tamanoGrilla / tamanoBlockY );
 
 			//float grillaT2[tamanoGrilla][tamanoGrilla];//grilla en tiempo (t-2)
 
@@ -345,13 +348,13 @@ int tamanoBlockY = 0;
 
 			for( t=0;t<num_pasos;t++)
 			{
-				printf("\n   usando t=%d \n", t);
+				//printf("\n   usando t=%d \n", t);
 				//al final de la iteracion la grillaT1 de tiempo (t-1) pasa a ser grillaT2 que corresponde a grilla en tiempo (t-2)
 				//asigno num_hebras como numero de hebras para el siguiente bloque, y asigno cuales variables son compartidas y privadas.
-				next<<<numBlocks,blocksize>>>(c_gt, c_gt1, c_gt2, tamanoGrilla, t, ((int) (tamanoGrilla / tamanoBlockY)));
+				next<<<numBlocks,blocksize, tamanoGrilla*tamanoGrilla*sizeof(float)>>>(c_gt, c_gt1, c_gt2, tamanoGrilla, t, ((int) (tamanoGrilla / tamanoBlockY)));
 				cudaDeviceSynchronize();
 				//copiando arreglos desde el device al host
-				cudaMemcpy(c_gt, grilla, tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
+				cudaMemcpy(c_gt, grilla, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
 
 				//si iteracion de salida es igual al al tiempo (t) la recorro sin paralelismo e imprimo
 				if(t==(iteracionSalida-1))
@@ -362,9 +365,11 @@ int tamanoBlockY = 0;
 						for( j=0;j<tamanoGrilla;j++)
 						{
 
-							printf("\n   intentando guardar %f", &grilla[tamanoGrilla*i+j]);
+							//printf("\n   intentando guardar %f", grilla[tamanoGrilla*i+j]);
+							printf("%f,", grilla[tamanoGrilla*i+j]);
 							write(outputF, &grilla[tamanoGrilla*i+j] , sizeof(float));
 						}
+						printf("\n");
 					}
 				}
 
@@ -372,7 +377,7 @@ int tamanoBlockY = 0;
 
 				//al final de la iteracion la grillaT1 de tiempo (t-1) pasa a ser grillaT2 que corresponde a grilla en tiempo (t-2)
 				//asigno num_hebras como numero de hebras para el siguiente bloque, y asigno cuales variables son compartidas y privadas.
-        copyT2T1<<<numBlocks,blocksize>>>(c_gt1, c_gt2, tamanoGrilla);
+        copyT2T1<<<numBlocks,blocksize, tamanoGrilla*tamanoGrilla*sizeof(float)>>>(c_gt1, c_gt2, tamanoGrilla);
 				cudaDeviceSynchronize();//sincronizo los datos
 				cudaMemcpy(c_gt2, c_gt1, tamanoGrilla*tamanoGrilla*sizeof(float), cudaMemcpyDeviceToHost);
         //al final de la iteracion la grilla de tiempo (t) pasa a ser grillaT1 que corresponde a grilla en tiempo (t-1)
@@ -397,7 +402,7 @@ int tamanoBlockY = 0;
 		float  elapsedTime;
 		cudaEventElapsedTime(&elapsedTime,start,stop);
 		// impresion de resultados
-		printf("> Tiempo de ejecucion: %f ms\n",elapsedTime);
+		//printf("> Tiempo de ejecucion: %f ms\n",elapsedTime);
 		// liberacion de recursos
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
@@ -408,7 +413,7 @@ int tamanoBlockY = 0;
       //printf("Tiempo usado con  Tamano[%d] num_Pasos[%d]  Salida[%d] = %f sec.\n", tamanoGrilla, num_pasos, iteracionSalida, end-start);
 	end_t = clock();
 	total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC;
-   	printf("Total time taken by CPU: %f\n", (double)total_t  );
+   	//printf("Total time taken by CPU: %f\n", (double)total_t  );
       return 0;
     }//fin if principal
   }//fin main
